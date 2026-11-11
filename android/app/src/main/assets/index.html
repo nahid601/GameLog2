@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3d5afe">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Game Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f6;--surface:#fff;--ink:#1b2340;--mute:#6b7390;--line:#d9deea;--accent:#3d5afe;--on-accent:#fff;--played:#1f9d74;--next:#c98400;--now:#3d5afe;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12162a;--surface:#1b2140;--ink:#eef0fa;--mute:#98a0c2;--line:#2c345c;--accent:#7b8dff;--on-accent:#12162a;--played:#43c79a;--next:#f0b53a;--now:#7b8dff}}
+:root[data-theme="dark"]{--bg:#12162a;--surface:#1b2140;--ink:#eef0fa;--mute:#98a0c2;--line:#2c345c;--accent:#7b8dff;--on-accent:#12162a;--played:#43c79a;--next:#f0b53a;--now:#7b8dff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 90px}
+h1{font-size:34px;font-weight:800;margin:6px 0 2px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 16px}
+.tabs{display:flex;gap:6px;background:var(--surface);padding:5px;border-radius:14px;border:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);font:inherit;font-weight:600;padding:10px 4px;border-radius:10px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.tabs span{opacity:.75;font-weight:400;margin-left:3px}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.search{margin:14px 0}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+li{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;padding:12px 12px 10px}
+li .t{font-weight:600;font-size:17px;word-break:break-word}
+li .m{color:var(--mute);font-size:14px;margin-top:2px}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.row button{border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:14px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.row .del{margin-left:auto;color:var(--mute)}
+.stars button{border:0;padding:2px;font-size:20px;color:var(--line)}
+.stars button.on{color:var(--next)}
+.empty{text-align:center;color:var(--mute);padding:36px 12px}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--on-accent);border:0;border-radius:16px;font:inherit;font-weight:800;padding:14px 20px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--bg);color:var(--ink);width:min(92vw,420px);padding:18px}
+dialog::backdrop{background:rgba(10,12,30,.55)}
+dialog label{display:block;font-weight:600;margin:12px 0 4px}
+.act{display:flex;gap:8px;margin-top:16px}
+.act button{flex:1;font:inherit;font-weight:600;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.act .go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+#sug{margin-top:6px;gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+#sug:empty{display:none}
+#sug li{border:0;border-radius:0;border-bottom:1px solid var(--line);padding:0;background:none}
+#sug li:last-child{border-bottom:0}
+#sug button{width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+#sug button small{color:var(--mute)}
+#sug mark{background:none;color:var(--accent);font-weight:800}
+#sug button{align-items:center;justify-content:flex-start}
+#sug img,#sug .ph{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--line)}
+#sug .nm{flex:1;min-width:0}
+#sug button small{flex:none;max-width:38%;text-align:right}
+li.hc{display:flex;gap:12px}
+.cv{width:68px;height:68px;object-fit:cover;border-radius:8px;flex:none;background:var(--line)}
+.bd{min-width:0;flex:1}
+#keybtn{display:none;margin:0 0 12px;width:100%;padding:11px;border-radius:10px;border:1px dashed var(--accent);background:none;color:var(--accent);font:inherit;font-weight:600;cursor:pointer}
+#install{display:none;margin:0 0 12px;width:100%;padding:11px;border-radius:10px;border:1px dashed var(--accent);background:none;color:var(--accent);font:inherit;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <h1>Game Log</h1>
+  <p class="sub">What you’ve played, and what’s next.</p>
+  <button id="keybtn">Turn on game covers and online search</button>
+  <button id="install">Install on this phone</button>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <input class="search" id="q" type="search" placeholder="Search games" aria-label="Search games">
+  <ul id="list"></ul>
+</main>
+<button class="fab" id="add">+ Add game</button>
+
+<dialog id="dlg">
+  <h2 style="margin:0">Add a game</h2>
+  <label for="f-title">Title</label>
+  <input id="f-title" placeholder="Start typing a game name" autocomplete="off">
+  <ul id="sug"></ul>
+  <label for="f-plat">Platform</label>
+  <input id="f-plat" placeholder="PC, PS5, Switch, Mobile…">
+  <label for="f-status">List</label>
+  <select id="f-status">
+    <option value="next">To play</option>
+    <option value="now">Playing</option>
+    <option value="played">Played</option>
+  </select>
+  <div class="act"><button id="cancel">Cancel</button><button class="go" id="save">Save game</button></div>
+</dialog>
+
+<dialog id="kdlg">
+  <h2 style="margin:0">Game covers</h2>
+  <p style="color:var(--mute);margin:8px 0 0">Paste your free RAWG API key (get one at rawg.io/apidocs). It stays on this phone.</p>
+  <label for="f-key">API key</label>
+  <input id="f-key" autocomplete="off" placeholder="Paste key here">
+  <div class="act"><button id="kcancel">Cancel</button><button class="go" id="ksave">Save key</button></div>
+</dialog>
+
+<script>
+const LABELS={next:"To play",now:"Playing",played:"Played"};
+const COLORS={next:"var(--next)",now:"var(--now)",played:"var(--played)"};
+let games=[],tab="next",KEY="gamelog:v1";
+try{games=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){games=[]}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(games))}catch(e){}}
+const $=id=>document.getElementById(id);
+
+function render(){
+  $("tabs").innerHTML=Object.keys(LABELS).map(k=>
+    `<button role="tab" aria-selected="${k===tab}" data-t="${k}">${LABELS[k]}<span>${games.filter(g=>g.s===k).length}</span></button>`).join("");
+  const q=$("q").value.trim().toLowerCase();
+  const items=games.filter(g=>g.s===tab&&(g.t+" "+g.p).toLowerCase().includes(q));
+  const ul=$("list");
+  if(!items.length){ul.innerHTML=`<li class="empty" style="border-left-width:1px">${q?"No games match your search.":"Nothing in “"+LABELS[tab]+"” yet. Tap Add game to start."}</li>`;return}
+  ul.innerHTML=items.map(g=>{
+    const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const moves=Object.keys(LABELS).filter(k=>k!==g.s).map(k=>`<button data-id="${g.id}" data-mv="${k}">${k==="now"?"Start playing":k==="played"?"Mark played":"Move to play list"}</button>`).join("");
+    const stars=g.s==="played"?`<span class="stars" aria-label="Rating">${[1,2,3,4,5].map(n=>`<button data-id="${g.id}" data-r="${n}" class="${n<=(g.r||0)?"on":""}" aria-label="${n} stars">★</button>`).join("")}</span>`:"";
+    return `<li class="${g.c?"hc":""}" style="--c:${COLORS[g.s]}">${g.c?`<img class="cv" src="${esc(g.c)}" alt="" loading="lazy">`:""}<div class="bd"><div class="t">${esc(g.t)}</div><div class="m">${esc(g.p||"No platform")}</div><div class="row">${stars}${moves}<button class="del" data-id="${g.id}" data-del="1">Remove</button></div></div></li>`}).join("");
+}
+$("tabs").onclick=e=>{const b=e.target.closest("[data-t]");if(b){tab=b.dataset.t;render()}};
+$("q").oninput=render;
+$("list").onclick=e=>{
+  const b=e.target.closest("button");if(!b)return;
+  const g=games.find(x=>x.id===b.dataset.id);if(!g)return;
+  if(b.dataset.del){games=games.filter(x=>x!==g)}
+  else if(b.dataset.mv){g.s=b.dataset.mv;tab=g.s}
+  else if(b.dataset.r){g.r=+b.dataset.r}
+  persist();render();
+};
+$("add").onclick=()=>{$("f-status").value=tab;$("f-title").value="";$("dlg").showModal();$("f-title").focus()};
+$("cancel").onclick=()=>$("dlg").close();
+$("save").onclick=()=>{
+  const t=$("f-title").value.trim();if(!t){$("f-title").focus();return}
+  games.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),t,p:$("f-plat").value.trim(),s:$("f-status").value,r:0,c:picked});picked="";
+  tab=$("f-status").value;$("f-plat").value="";persist();$("dlg").close();render();
+};
+
+// Autocomplete from a built-in list of popular games (no internet needed)
+const CAT="Hades|PC, Switch;Hades II|PC;Hollow Knight|PC, Switch;Hollow Knight: Silksong|PC, Switch;Celeste|PC, Switch;Stardew Valley|PC, Mobile, Switch;Minecraft|PC, Mobile, Console;Terraria|PC, Mobile;Among Us|PC, Mobile;Fortnite|PC, Console, Mobile;Roblox|PC, Mobile;Free Fire|Mobile;PUBG Mobile|Mobile;Call of Duty: Mobile|Mobile;Call of Duty: Modern Warfare III|PC, PS5, Xbox;Call of Duty: Warzone|PC, Console;Valorant|PC;Counter-Strike 2|PC;League of Legends|PC;Dota 2|PC;Apex Legends|PC, Console;Overwatch 2|PC, Console;Rainbow Six Siege|PC, Console;Rocket League|PC, Console;FIFA 23|PC, Console;EA Sports FC 24|PC, Console;EA Sports FC 25|PC, Console;eFootball|PC, Mobile, Console;NBA 2K24|PC, Console;Madden NFL 24|Console;GTA V|PC, Console;Grand Theft Auto VI|PS5, Xbox;Grand Theft Auto: San Andreas|PC, Mobile, Console;Red Dead Redemption 2|PC, Console;Red Dead Redemption|Console;The Witcher 3: Wild Hunt|PC, Console;Cyberpunk 2077|PC, Console;Elden Ring|PC, Console;Dark Souls III|PC, Console;Dark Souls|PC, Console;Sekiro: Shadows Die Twice|PC, Console;Bloodborne|PS4;Black Myth: Wukong|PC, PS5;Baldur's Gate 3|PC, PS5;Starfield|PC, Xbox;Skyrim|PC, Console;Fallout 4|PC, Console;Fallout: New Vegas|PC, Console;Oblivion Remastered|PC, Console;Mass Effect Legendary Edition|PC, Console;Dragon Age: Origins|PC;Diablo IV|PC, Console;Path of Exile|PC;World of Warcraft|PC;Genshin Impact|PC, Mobile, PS5;Honkai: Star Rail|PC, Mobile;Zenless Zone Zero|PC, Mobile;Wuthering Waves|PC, Mobile;The Legend of Zelda: Breath of the Wild|Switch;The Legend of Zelda: Tears of the Kingdom|Switch;The Legend of Zelda: Ocarina of Time|N64, 3DS;Super Mario Odyssey|Switch;Super Mario Bros. Wonder|Switch;Super Mario 64|N64;Mario Kart 8 Deluxe|Switch;Mario Kart World|Switch 2;Super Smash Bros. Ultimate|Switch;Animal Crossing: New Horizons|Switch;Pokemon Scarlet and Violet|Switch;Pokemon Legends: Arceus|Switch;Pokemon Go|Mobile;Pokemon Sword and Shield|Switch;Metroid Dread|Switch;Metroid Prime|GameCube, Switch;Kirby and the Forgotten Land|Switch;Splatoon 3|Switch;Fire Emblem: Three Houses|Switch;Xenoblade Chronicles 3|Switch;Donkey Kong Country Returns|Switch;Persona 5 Royal|PC, Console;Persona 3 Reload|PC, Console;Persona 4 Golden|PC, Console;Final Fantasy VII|PS, PC;Final Fantasy VII Remake|PS5, PC;Final Fantasy VII Rebirth|PS5, PC;Final Fantasy X|PS2, PC, Console;Final Fantasy XVI|PS5, PC;Final Fantasy XIV|PC, PS5;Dragon Quest XI|PC, Console;Kingdom Hearts III|PS4, Xbox;Monster Hunter: World|PC, Console;Monster Hunter Rise|PC, Switch;Monster Hunter Wilds|PC, Console;Resident Evil 4 Remake|PC, Console;Resident Evil 2 Remake|PC, Console;Resident Evil Village|PC, Console;Resident Evil 7|PC, Console;Silent Hill 2|PC, PS5;Dead Space|PC, Console;Alan Wake 2|PC, Console;Outlast|PC, Console;Phasmophobia|PC;Five Nights at Freddy's|PC, Mobile;Little Nightmares II|PC, Console;Inside|PC, Console;Limbo|PC, Console;Hogwarts Legacy|PC, Console;Spider-Man: Miles Morales|PC, PS;Marvel's Spider-Man|PC, PS;Marvel's Spider-Man 2|PS5, PC;Batman: Arkham Knight|PC, Console;Batman: Arkham City|PC, Console;Assassin's Creed Valhalla|PC, Console;Assassin's Creed Odyssey|PC, Console;Assassin's Creed Origins|PC, Console;Assassin's Creed II|PC, Console;Assassin's Creed Black Flag|PC, Console;Assassin's Creed Shadows|PC, Console;Far Cry 6|PC, Console;Far Cry 5|PC, Console;Far Cry 3|PC, Console;Watch Dogs 2|PC, Console;Ghost of Tsushima|PS, PC;Ghost of Yotei|PS5;God of War|PC, PS;God of War Ragnarok|PC, PS;God of War III|PS3;The Last of Us Part I|PC, PS5;The Last of Us Part II|PS, PC;Uncharted 4|PS, PC;Horizon Zero Dawn|PC, PS;Horizon Forbidden West|PC, PS5;Death Stranding|PC, PS;Death Stranding 2|PS5;Astro Bot|PS5;Returnal|PC, PS5;Demon's Souls|PS5, PC;Gran Turismo 7|PS;Forza Horizon 5|PC, Xbox;Forza Horizon 4|PC, Xbox;Need for Speed Heat|PC, Console;Need for Speed: Most Wanted|PC, Console;Need for Speed Unbound|PC, Console;Asphalt 9|Mobile, PC;Halo Infinite|PC, Xbox;Halo: The Master Chief Collection|PC, Xbox;Gears 5|PC, Xbox;Sea of Thieves|PC, Xbox, PS5;Hi-Fi Rush|PC, Console;Doom Eternal|PC, Console;Doom: The Dark Ages|PC, Console;Wolfenstein II|PC, Console;Half-Life 2|PC;Half-Life: Alyx|PC VR;Portal 2|PC, Console;Portal|PC, Console;Left 4 Dead 2|PC;Team Fortress 2|PC;Borderlands 3|PC, Console;Borderlands 2|PC, Console;Destiny 2|PC, Console;Helldivers 2|PC, PS5;Lethal Company|PC;Palworld|PC, Xbox;Valheim|PC;Raft|PC;Subnautica|PC, Console;The Forest|PC;Sons of the Forest|PC;Rust|PC, Console;ARK: Survival Evolved|PC, Console;DayZ|PC, Console;7 Days to Die|PC;Don't Starve Together|PC, Console;Satisfactory|PC;Factorio|PC;Cities: Skylines|PC, Console;The Sims 4|PC, Console;The Sims 3|PC;Planet Zoo|PC;Euro Truck Simulator 2|PC;Farming Simulator 22|PC, Console;Microsoft Flight Simulator|PC, Xbox;Civilization VI|PC, Switch;Age of Empires II|PC;Age of Empires IV|PC;StarCraft II|PC;Warcraft III|PC;Total War: Warhammer III|PC;XCOM 2|PC, Console;Crusader Kings III|PC;Hearts of Iron IV|PC;Stellaris|PC;Hearthstone|PC, Mobile;Clash of Clans|Mobile;Clash Royale|Mobile;Brawl Stars|Mobile;Candy Crush Saga|Mobile;Subway Surfers|Mobile;Temple Run 2|Mobile;Fruit Ninja|Mobile;Angry Birds|Mobile;Plants vs. Zombies|PC, Mobile;Cut the Rope|Mobile;Monument Valley|Mobile;Mobile Legends: Bang Bang|Mobile;Honor of Kings|Mobile;Pokemon Unite|Switch, Mobile;Vampire Survivors|PC, Mobile, Console;Slay the Spire|PC, Console, Mobile;Balatro|PC, Console, Mobile;Dead Cells|PC, Console, Mobile;Risk of Rain 2|PC, Console;Enter the Gungeon|PC, Console;The Binding of Isaac: Rebirth|PC, Console;Cuphead|PC, Console;Undertale|PC, Console;Deltarune|PC, Console;Hotline Miami|PC, Console;Disco Elysium|PC, Console;Outer Wilds|PC, Console;Return of the Obra Dinn|PC, Console;Untitled Goose Game|PC, Console;It Takes Two|PC, Console;A Way Out|PC, Console;Overcooked 2|PC, Console;Fall Guys|PC, Console;Human: Fall Flat|PC, Console;Ori and the Will of the Wisps|PC, Xbox, Switch;Ori and the Blind Forest|PC, Xbox, Switch;Hyper Light Drifter|PC, Console;Sifu|PC, Console;Control|PC, Console;Alan Wake|PC, Xbox;Max Payne 3|PC, Console;Mafia: Definitive Edition|PC, Console;Mafia II|PC, Console;Sleeping Dogs|PC, Console;Saints Row IV|PC, Console;Prince of Persia: The Lost Crown|PC, Console;Prince of Persia: The Sands of Time|PC, Console;Tomb Raider (2013)|PC, Console;Rise of the Tomb Raider|PC, Console;Shadow of the Tomb Raider|PC, Console;Metal Gear Solid V|PC, Console;Metal Gear Solid 3|PS2, Console;Metal Gear Solid|PS, PC;Yakuza 0|PC, Console;Like a Dragon: Infinite Wealth|PC, Console;Judgment|PC, Console;Nier: Automata|PC, Console;Bayonetta 3|Switch;Devil May Cry 5|PC, Console;Street Fighter 6|PC, Console;Tekken 8|PC, Console;Mortal Kombat 1|PC, Console;Mortal Kombat 11|PC, Console;Dragon Ball: Sparking! Zero|PC, Console;Naruto Storm 4|PC, Console;Hogwarts Mystery|Mobile;Crash Bandicoot N. Sane Trilogy|PC, Console;Spyro Reignited Trilogy|PC, Console;Sonic Frontiers|PC, Console;Sonic Mania|PC, Console;Rayman Legends|PC, Console;Shovel Knight|PC, Console;Ratchet & Clank: Rift Apart|PC, PS5;Sackboy: A Big Adventure|PC, PS;Lies of P|PC, Console;Lords of the Fallen|PC, Console;Nioh 2|PC, PS;Armored Core VI|PC, Console;Star Wars Jedi: Survivor|PC, Console;Star Wars Jedi: Fallen Order|PC, Console;Star Wars: Knights of the Old Republic|PC, Console;Star Wars Battlefront II|PC, Console;LEGO Star Wars: The Skywalker Saga|PC, Console;Battlefield 2042|PC, Console;Battlefield 1|PC, Console;Battlefield 4|PC, Console;Titanfall 2|PC, Console;Dying Light 2|PC, Console;Dying Light|PC, Console;Dead Island 2|PC, Console;State of Decay 2|PC, Xbox;Days Gone|PC, PS;Metro Exodus|PC, Console;S.T.A.L.K.E.R. 2|PC, Xbox;Escape from Tarkov|PC;Hunt: Showdown|PC, Console;Dead by Daylight|PC, Console, Mobile;Among the Sleep|PC;Baldur's Gate|PC;Disco Elysium|PC".split(";").map(s=>{const[t,p]=s.split("|");return{t,p}});
+const sug=$("sug");
+let picked="",st=0,timer;
+let KEYV="";try{KEYV=localStorage.getItem("gamelog:key")||""}catch(e){}
+const hl=(t,q)=>{const i=t.toLowerCase().indexOf(q);const e=x=>x.replace(/&/g,"&amp;").replace(/</g,"&lt;");return i<0?e(t):e(t.slice(0,i))+"<mark>"+e(t.slice(i,i+q.length))+"</mark>"+e(t.slice(i+q.length))};
+function local(q){
+  const seen=new Set(),hits=[];
+  CAT.forEach(g=>{const l=g.t.toLowerCase();const i=l.indexOf(q);if(i>=0&&!seen.has(l)){seen.add(l);hits.push({g,r:(i===0?0:l.split(/\W+/).some(w=>w.startsWith(q))?1:2)})}});
+  hits.sort((a,b)=>a.r-b.r||a.g.t.length-b.g.t.length);
+  return hits.map(h=>({t:h.g.t,p:h.g.p,c:""}));
+}
+function paint(arr,q){
+  sug.innerHTML=arr.slice(0,6).map(g=>`<li><button type="button" data-t="${g.t.replace(/"/g,"&quot;")}" data-p="${(g.p||"").replace(/"/g,"&quot;")}" data-c="${g.c||""}">${g.c?`<img src="${g.c}" alt="">`:`<span class="ph"></span>`}<span class="nm">${hl(g.t,q)}</span><small>${g.p||""}</small></button></li>`).join("");
+}
+function suggest(){
+  picked="";
+  const q=$("f-title").value.trim().toLowerCase();
+  clearTimeout(timer);
+  if(!q){sug.innerHTML="";return}
+  paint(local(q),q);
+  if(!KEYV||q.length<2)return;
+  const id=++st;
+  timer=setTimeout(async()=>{
+    try{
+      const r=await fetch("https://api.rawg.io/api/games?key="+encodeURIComponent(KEYV)+"&search="+encodeURIComponent(q)+"&page_size=6");
+      const d=await r.json();if(id!==st)return;
+      const arr=(d.results||[]).map(x=>({t:x.name,p:(x.platforms||[]).map(p=>p.platform.name).slice(0,3).join(", "),c:x.background_image?x.background_image.replace("/media/","/media/resize/200/-/"):""}));
+      if(arr.length)paint(arr,q);
+    }catch(e){}
+  },250);
+}
+$("f-title").oninput=suggest;
+sug.onclick=e=>{const b=e.target.closest("button");if(!b)return;$("f-title").value=b.dataset.t;$("f-plat").value=b.dataset.p;picked=b.dataset.c||"";sug.innerHTML="";$("f-plat").focus()};
+$("dlg").addEventListener("close",()=>{sug.innerHTML=""});
+
+const kb=$("keybtn");
+function keyUi(){kb.style.display=KEYV?"none":"block"}
+kb.onclick=()=>{$("f-key").value="";$("kdlg").showModal()};
+$("kcancel").onclick=()=>$("kdlg").close();
+$("ksave").onclick=()=>{KEYV=$("f-key").value.trim();try{localStorage.setItem("gamelog:key",KEYV)}catch(e){}keyUi();$("kdlg").close()};
+keyUi();
+// PWA: manifest + install button
+try{
+  const icon="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#3d5afe"/><path d="M150 210h212a40 40 0 0 1 40 40v70a40 40 0 0 1-40 40H150a40 40 0 0 1-40-40v-70a40 40 0 0 1 40-40z" fill="#fff"/><path d="M160 265h50m-25-25v50" stroke="#3d5afe" stroke-width="22" stroke-linecap="round"/><circle cx="320" cy="260" r="16" fill="#3d5afe"/><circle cx="356" cy="292" r="16" fill="#3d5afe"/></svg>');
+  const man={name:"Game Log",short_name:"Game Log",display:"standalone",background_color:"#12162a",theme_color:"#3d5afe",start_url:location.href,icons:[{src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any"}]};
+  const l=document.createElement("link");l.rel="manifest";
+  l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));
+  document.head.appendChild(l);
+  const a=document.createElement("link");a.rel="icon";a.href=icon;document.head.appendChild(a);
+}catch(e){}
+let dp=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("install").style.display="block"});
+$("install").onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$("install").style.display="none"}};
+render();
+</script>
+</body>
+</html>
